@@ -4,7 +4,6 @@ import { AuthProvider } from './contexts/AuthContext';
 import { PricingProvider } from './contexts/PricingContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import ValetParkingPopup from './components/home/ValetParkingPopup';
-import ScrollTop from './utils/ScrollTop'
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -14,6 +13,10 @@ import AdminReviewsPage from './pages/AdminReviewsPage';
 import AdminPricingPage from './pages/AdminPricingPage';
 import AdminGalleryPage from './pages/AdminGalleryPage';
 import TermsAndConditionsPage from './pages/TermsAndConditionsPage';
+import ParkingInfoPage from './pages/ParkingInfoPage';
+import HikingTrailsPage from './pages/HikingTrailsPage';
+import LocalAttractionsPage from './pages/LocalAttractionsPage';
+import TouristEventsPage from './pages/TouristEventsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -30,13 +33,16 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <ScrollTop />
         <PricingProvider>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
+            <Route path="/parking-info" element={<ParkingInfoPage />} />
+            <Route path="/hiking-trails" element={<HikingTrailsPage />} />
+            <Route path="/local-attractions" element={<LocalAttractionsPage />} />
+            <Route path="/tourist-events" element={<TouristEventsPage />} />
             
             {/* Protected Admin Routes */}
             <Route path="/admin" element={<ProtectedRoute><AdminDashboardPage /></ProtectedRoute>} />

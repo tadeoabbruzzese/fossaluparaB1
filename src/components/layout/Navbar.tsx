@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Menu, X, Sun, Moon, ChevronDown } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -7,6 +7,7 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [showActivitiesDropdown, setShowActivitiesDropdown] = useState(false);
   const location = useLocation();
 
   // Toggle mobile menu
@@ -50,6 +51,7 @@ const Navbar: React.FC = () => {
   // Close mobile menu when route changes
   useEffect(() => {
     setIsOpen(false);
+    setShowActivitiesDropdown(false);
   }, [location.pathname]);
 
   const scrollToSection = (sectionId: string) => {
@@ -65,6 +67,12 @@ const Navbar: React.FC = () => {
     return isScrolled ? 'text-primary-600' : 'text-white';
   };
 
+  const activitiesLinks = [
+    { name: 'Hiking Trails', path: '/hiking-trails' },
+    { name: 'Local Attractions', path: '/local-attractions' },
+    { name: 'Tourist Events', path: '/tourist-events' }
+  ];
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -78,7 +86,7 @@ const Navbar: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <span className={`text-xl font-heading font-semibold ${isScrolled ? 'text-primary-500' : 'text-white'} dark:text-white`}>
-              Fossa Lupara
+              Forest Haven
             </span>
           </Link>
 
@@ -102,6 +110,43 @@ const Navbar: React.FC = () => {
             >
               Reviews
             </button>
+            
+            {/* Activities Dropdown */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setShowActivitiesDropdown(true)}
+              onMouseLeave={() => setShowActivitiesDropdown(false)}
+            >
+              <button
+                className={`${getTextColorClass()} hover:text-accent-500 dark:hover:text-accent-400 transition-colors flex items-center`}
+              >
+                Activities
+                <ChevronDown size={16} className="ml-1" />
+              </button>
+              
+              <AnimatePresence>
+                {showActivitiesDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-primary-800 rounded-md shadow-lg border border-gray-200 dark:border-primary-700"
+                  >
+                    {activitiesLinks.map((link) => (
+                      <Link
+                        key={link.path}
+                        to={link.path}
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-primary-700 first:rounded-t-md last:rounded-b-md"
+                      >
+                        {link.name}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            
             <button
               onClick={() => scrollToSection('contact')}
               className={`${getTextColorClass()} hover:text-accent-500 dark:hover:text-accent-400 transition-colors`}
@@ -175,6 +220,21 @@ const Navbar: React.FC = () => {
               >
                 Reviews
               </button>
+              
+              {/* Mobile Activities Section */}
+              <div className="border-t border-gray-200 dark:border-primary-700 pt-4">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Activities</p>
+                {activitiesLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className="block py-2 pl-4 text-primary-600 dark:text-primary-100 hover:text-accent-500 dark:hover:text-accent-400 transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
+              
               <button
                 onClick={() => scrollToSection('contact')}
                 className="block w-full text-left py-3 text-primary-600 dark:text-primary-100 hover:text-accent-500 dark:hover:text-accent-400 transition-colors"

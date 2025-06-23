@@ -5,6 +5,8 @@ import { supabase } from '../../lib/supabase';
 import { usePricing } from '../../contexts/PricingContext';
 import Button from '../ui/Button';
 import PricingPopup from './PricingPopup';
+import emailjs from 'emailjs-com';
+
 
 interface PricingOption {
   id: string;
@@ -93,19 +95,18 @@ const ContactSection: React.FC = () => {
       nights
     };
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormStatus('submitting');
-    
-    try {
-      const priceEstimate = calculateEstimatedPrice();
-      let finalMessage = formData.message;
+  e.preventDefault();
+  setFormStatus('submitting');
 
-      if (selectedPricing && priceEstimate) {
-        const selectedPricingDetails = pricingOptions.find(opt => opt.id === selectedPricing);
-        if (selectedPricingDetails) {
-          finalMessage += `\n\nBooking Details:
+  try {
+    const priceEstimate = calculateEstimatedPrice();
+    let finalMessage = formData.message;
+
+    if (selectedPricing && priceEstimate) {
+      const selectedPricingDetails = pricingOptions.find(opt => opt.id === selectedPricing);
+      if (selectedPricingDetails) {
+        finalMessage += `\n\nBooking Details:
 - Accommodation: ${selectedPricingDetails.name}
 - Arrival: ${formData.arrivalDate}
 - Departure: ${formData.departureDate}
@@ -113,47 +114,108 @@ const ContactSection: React.FC = () => {
 - Children (under 3): ${formData.childrenUnder3}
 - Children (3-12): ${formData.childrenUnder12}
 - Pets: ${formData.pets}
-- Estimated Price: $${priceEstimate.total.toFixed(2)} (${priceEstimate.nights} nights at $${priceEstimate.perNight.toFixed(2)}/night)`;
-        }
+- Estimated Price: $${priceEstimate.total.toFixed(2)} (${priceEstimate.nights} nights)`;
       }
-      
-      const { error } = await supabase
-        .from('contact_requests')
-        .insert([{
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone || null,
-          message: finalMessage,
-          request_type: formData.requestType
-        }]);
-
-      if (error) throw error;
-      
-      setFormStatus('success');
-      
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        message: '',
-        requestType: 'quote',
-        arrivalDate: '',
-        departureDate: '',
-        adults: 1,
-        childrenUnder3: 0,
-        childrenUnder12: 0,
-        pets: 0
-      });
-      setSelectedPricing(null);
-      
-      setTimeout(() => {
-        setFormStatus('idle');
-      }, 5000);
-    } catch (error) {
-      console.error('Error submitting contact request:', error);
-      setFormStatus('error');
     }
-  };
+
+    // 📨 Enviar el mail con EmailJS:
+    await emailjs.send(
+      'service_bz0y37s',   // ← tu Service ID
+      'template_5pofknd',  // ← tu Template ID
+      {
+        from_name: formData.name,
+        from_email: formData.email,
+        phone_number: formData.phone,
+        request_type: formData.requestType,
+        message: finalMessage
+      },
+      'f7fhoFqmC9aGm7GLp'    // ← tu Public Key que te da EmailJS
+    );
+
+    setFormStatus('success');
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      message: '',
+      requestType: 'quote',
+      arrivalDate: '',
+      departureDate: '',
+      adults: 1,
+      childrenUnder3: 0,
+      childrenUnder12: 0,
+      pets: 0
+    });
+    setSelectedPricing(null);
+
+    setTimeout(() => setFormStatus('idle'), 5000);
+  } catch (error) {
+    console.error('Error sending contact request:', error);
+    setFormStatus('error');
+  }
+};
+
+
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     setFormStatus('submitting');
+    
+//     try {
+//       const priceEstimate = calculateEstimatedPrice();
+//       let finalMessage = formData.message;
+
+//       if (selectedPricing && priceEstimate) {
+//         const selectedPricingDetails = pricingOptions.find(opt => opt.id === selectedPricing);
+//         if (selectedPricingDetails) {
+//           finalMessage += `\n\nBooking Details:
+// - Accommodation: ${selectedPricingDetails.name}
+// - Arrival: ${formData.arrivalDate}
+// - Departure: ${formData.departureDate}
+// - Adults: ${formData.adults}
+// - Children (under 3): ${formData.childrenUnder3}
+// - Children (3-12): ${formData.childrenUnder12}
+// - Pets: ${formData.pets}
+// - Estimated Price: $${priceEstimate.total.toFixed(2)} (${priceEstimate.nights} nights at $${priceEstimate.perNight.toFixed(2)}/night)`;
+//         }
+//       }
+      
+//       const { error } = await supabase
+//         .from('contact_requests')
+//         .insert([{
+//           name: formData.name,
+//           email: formData.email,
+//           phone: formData.phone || null,
+//           message: finalMessage,
+//           request_type: formData.requestType
+//         }]);
+
+//       if (error) throw error;
+      
+//       setFormStatus('success');
+      
+//       setFormData({
+//         name: '',
+//         email: '',
+//         phone: '',
+//         message: '',
+//         requestType: 'quote',
+//         arrivalDate: '',
+//         departureDate: '',
+//         adults: 1,
+//         childrenUnder3: 0,
+//         childrenUnder12: 0,
+//         pets: 0
+//       });
+//       setSelectedPricing(null);
+      
+//       setTimeout(() => {
+//         setFormStatus('idle');
+//       }, 5000);
+//     } catch (error) {
+//       console.error('Error submitting contact request:', error);
+//       setFormStatus('error');
+//     }
+//   };
 
   const priceEstimate = calculateEstimatedPrice();
 

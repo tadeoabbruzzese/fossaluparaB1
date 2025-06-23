@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Car, X } from 'lucide-react';
 import Button from '../ui/Button';
+import { Link } from 'react-router-dom';
 
 interface ValetParkingPopupProps {
   onClose: () => void;
@@ -74,6 +75,7 @@ const ValetParkingPopup: React.FC<ValetParkingPopupProps> = ({ onClose }) => {
             </p>
 
             <div className="flex justify-center">
+              <Link to="/parking-info">
               <Button
                 variant="accent"
                 size="sm"
@@ -81,6 +83,7 @@ const ValetParkingPopup: React.FC<ValetParkingPopupProps> = ({ onClose }) => {
               >
                 Learn More
               </Button>
+              </Link>
             </div>
           </div>
         </div>
